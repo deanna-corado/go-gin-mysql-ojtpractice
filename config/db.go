@@ -36,5 +36,5 @@ func ConnectDB() {
 		log.Fatal(err)
 	}
 
-	log.Println("Database connected")
+	log.Println("Connected!")
 }

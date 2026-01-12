@@ -1,4 +1,4 @@
-//ROUTES - FOR CALLING CONTROLLERS BASED ON ENDPOINTS; CALL API
+// ROUTES - FOR CALLING CONTROLLERS BASED ON ENDPOINTS; CALL API
 package routes
 
 import (
@@ -10,4 +10,6 @@ import (
 func RegisterRoutes(r *gin.Engine) {
 	r.GET("/movies", controllers.GetMovies)
 	r.POST("/movies", controllers.AddMovie)
+	r.PUT("/movies/:id", controllers.UpdateMovie)
+	r.DELETE("/movies/:id", controllers.DeleteMovie)
 }
