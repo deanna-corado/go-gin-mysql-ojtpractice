@@ -2,14 +2,19 @@
 package routes
 
 import (
+	// "database/sql"
+	// "go-gin-mysql/controllers"
+	// "go-gin-mysql/repositories"
+
 	"go-gin-mysql/controllers"
 
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterRoutes(r *gin.Engine) {
-	r.GET("/movies", controllers.GetMovies)
-	r.POST("/movies", controllers.AddMovie)
-	r.PUT("/movies/:id", controllers.UpdateMovie)
-	r.DELETE("/movies/:id", controllers.DeleteMovie)
+func RegisterRoutes(
+	r *gin.Engine,
+	movieController *controllers.MovieController,
+) {
+	r.GET("/movies", movieController.GetMovies)
+
 }
