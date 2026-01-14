@@ -3,33 +3,28 @@
 package config
 
 import (
-	"database/sql"
 	"log"
 	"os"
 
-	"github.com/go-sql-driver/mysql"
-	// "github.com/joho/godotenv"
+	// "github.com/go-sql-driver/mysql"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
-var DB *sql.DB
+var DB *gorm.DB
 
 func ConnectDB() {
 
-	cfg := mysql.NewConfig()
-	cfg.User = os.Getenv("DBUSER")
-	cfg.Passwd = os.Getenv("DBPASS")
-	cfg.Net = os.Getenv("DBNET")
-	cfg.Addr = os.Getenv("DBADDRESS")
-	cfg.DBName = os.Getenv("DBNAME")
+	dsn := os.Getenv("DBUSER") + ":" +
+		os.Getenv("DBPASS") + "@tcp(" +
+		os.Getenv("DBADDRESS") + ")/" +
+		os.Getenv("DBNAME") +
+		"?parseTime=true"
 	var err error
-	DB, err = sql.Open("mysql", cfg.FormatDSN())
+	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Failed to connect to database:", err)
 	}
 
-	if err = DB.Ping(); err != nil {
-		log.Fatal(err)
-	}
-
-	log.Println("Connected!")
+	log.Println("Database connected successfully")
 }

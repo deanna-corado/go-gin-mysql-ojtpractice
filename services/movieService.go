@@ -28,7 +28,6 @@ func (s *MovieService) GetMovies() ([]models.Movie, error) {
 
 func (s *MovieService) GetMovieByID(id int) (*models.Movie, error) {
 
-	
 	if id <= 0 {
 		return nil, ErrInvalidMovieID
 	}
