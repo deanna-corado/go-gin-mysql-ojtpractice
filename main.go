@@ -5,6 +5,7 @@ import (
 	"go-gin-mysql/controllers"
 	"go-gin-mysql/repositories"
 	"go-gin-mysql/routes"
+	"go-gin-mysql/services"
 	"log"
 	"os"
 
@@ -12,24 +13,27 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func main() {
+func init() {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
+}
+
+func main() {
 
 	config.ConnectDB()
 
 	r := gin.Default()
 
 	movieRepo := repositories.NewMovieRepository(config.DB)
-
-	movieController := controllers.NewMovieController(movieRepo)
+	movieService := services.NewMovieService(movieRepo)
+	movieController := controllers.NewMovieController(movieService)
 
 	routes.RegisterRoutes(r, movieController)
 
 	port := os.Getenv("PORT")
-	
+
 	if port == "" {
 		port = "8080"
 	}

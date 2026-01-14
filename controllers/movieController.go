@@ -2,28 +2,28 @@
 package controllers
 
 import (
-	"database/sql"
+	"errors"
 	"net/http"
 	"strconv"
 
 	"go-gin-mysql/models"
-	"go-gin-mysql/repositories"
+	"go-gin-mysql/services"
 
 	"github.com/gin-gonic/gin"
 )
 
 type MovieController struct {
-	repo *repositories.MovieRepository
+	service *services.MovieService
 }
 
-func NewMovieController(repo *repositories.MovieRepository) *MovieController {
+func NewMovieController(service *services.MovieService) *MovieController {
 	return &MovieController{
-		repo: repo,
+		service: service,
 	}
 }
 
 func (c *MovieController) GetMovies(ctx *gin.Context) {
-	movies, err := c.repo.GetMovies()
+	movies, err := c.service.GetMovies()
 	if err != nil {
 
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
@@ -33,26 +33,37 @@ func (c *MovieController) GetMovies(ctx *gin.Context) {
 }
 
 func (c *MovieController) GetMovieByID(ctx *gin.Context) {
-	idParam := ctx.Param("id")
 
+	//check if number (since id sya)
+	idParam := ctx.Param("id")
 	id, err := strconv.Atoi(idParam)
+
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid movie ID"})
 		return
 	}
 
-	movie, err := c.repo.GetMovieByID(id)
+	movie, err := c.service.GetMovieByID(id)
 	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": "Movie not found"})
+
+		switch {
+		case errors.Is(err, services.ErrInvalidMovieID):
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+
+		case errors.Is(err, services.ErrMovieNotFound):
+			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+
+		default:
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
 		return
 	}
-
 	ctx.JSON(http.StatusOK, movie)
 }
 
 func (c *MovieController) AddMovie(ctx *gin.Context) {
 	var movie models.Movie
-	//DIFFERENCE BETWEEN THESE 2?
+
 	if err := ctx.ShouldBindJSON(&movie); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": "Invalid JSON",
@@ -60,7 +71,7 @@ func (c *MovieController) AddMovie(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.repo.AddMovie(&movie); err != nil {
+	if err := c.service.AddMovie(&movie); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
@@ -69,12 +80,10 @@ func (c *MovieController) AddMovie(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusCreated, movie)
 }
-
 func (c *MovieController) UpdateMovie(ctx *gin.Context) {
 	var movie models.Movie
 
-	idParam := ctx.Param("id")
-	id, err := strconv.Atoi(idParam)
+	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid movie ID"})
 		return
@@ -85,37 +94,41 @@ func (c *MovieController) UpdateMovie(ctx *gin.Context) {
 		return
 	}
 
-	movie.ID = id
+	if err := c.service.UpdateMovie(id, &movie); err != nil {
+		switch {
+		case errors.Is(err, services.ErrInvalidMovieID),
+			errors.Is(err, services.ErrMissingMovieData):
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 
-	if err := c.repo.UpdateMovie(&movie); err != nil {
-		if err == sql.ErrNoRows {
-			ctx.JSON(http.StatusNotFound, gin.H{"error": "Movie not found"})
-			return
+		case errors.Is(err, services.ErrMovieNotFound):
+			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+
+		default:
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		}
-
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	ctx.JSON(http.StatusOK, movie)
 }
-
 func (c *MovieController) DeleteMovie(ctx *gin.Context) {
-	idParam := ctx.Param("id")
-	id, err := strconv.Atoi(idParam)
-
+	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid movie ID"})
 		return
 	}
 
-	if err := c.repo.DeleteMovie(id); err != nil {
-		if err == sql.ErrNoRows {
-			ctx.JSON(http.StatusNotFound, gin.H{"error": "Movie not found"})
-			return
-		}
+	if err := c.service.DeleteMovie(id); err != nil {
+		switch {
+		case errors.Is(err, services.ErrInvalidMovieID):
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		case errors.Is(err, services.ErrMovieNotFound):
+			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+
+		default:
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
 		return
 	}
 

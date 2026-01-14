@@ -11,7 +11,6 @@ import (
 	// "github.com/joho/godotenv"
 )
 
-// dito ba talaga to
 var DB *sql.DB
 
 func ConnectDB() {

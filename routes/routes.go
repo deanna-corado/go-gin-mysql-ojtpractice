@@ -3,7 +3,7 @@ package routes
 
 import (
 	// "database/sql"
-	// "go-gin-mysql/controllers"
+
 	// "go-gin-mysql/repositories"
 
 	"go-gin-mysql/controllers"
