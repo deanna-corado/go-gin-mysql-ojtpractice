@@ -13,17 +13,12 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func init() {
+func main() {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-
 	config.ConnectDB()
-}
-
-func main() {
-
 	r := gin.Default()
 
 	movieRepo := repositories.NewMovieRepository(config.DB)

@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 
-	// "github.com/go-sql-driver/mysql"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -15,10 +14,10 @@ var DB *gorm.DB
 
 func ConnectDB() {
 
-	dsn := os.Getenv("DBUSER") + ":" +
-		os.Getenv("DBPASS") + "@tcp(" +
-		os.Getenv("DBADDRESS") + ")/" +
-		os.Getenv("DBNAME") +
+	dsn := os.Getenv("DB_USER") + ":" +
+		os.Getenv("DB_PASS") + "@tcp(" +
+		os.Getenv("DB_ADDRESS") + ")/" +
+		os.Getenv("DB_NAME") +
 		"?parseTime=true"
 	var err error
 	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
