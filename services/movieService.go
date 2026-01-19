@@ -1,7 +1,6 @@
 package services
 
 import (
-	"database/sql"
 	"errors"
 	"go-gin-mysql/models"
 	"go-gin-mysql/repositories"
@@ -63,7 +62,7 @@ func (s *MovieService) UpdateMovie(id int, movie *models.Movie) error {
 
 	_, err := s.repo.GetMovieByID(id)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return ErrMovieNotFound
 		}
 		return err

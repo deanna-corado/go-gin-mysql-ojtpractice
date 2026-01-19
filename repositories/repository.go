@@ -38,11 +38,10 @@ func (r *MovieRepository) AddMovie(movie *models.Movie) error {
 }
 
 func (r *MovieRepository) UpdateMovie(movie *models.Movie) error {
-	result := r.db.Save(movie)
 
-	if result.RowsAffected == 0 {
-		return gorm.ErrRecordNotFound
-	}
+	result := r.db.Model(&models.Movie{}).
+		Where("id = ?", movie.ID).
+		Updates(models.Movie{Title: movie.Title, Director: movie.Director})
 	return result.Error
 }
 

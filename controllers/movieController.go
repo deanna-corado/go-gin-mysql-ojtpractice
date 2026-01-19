@@ -34,7 +34,6 @@ func (c *MovieController) GetMovies(ctx *gin.Context) {
 
 func (c *MovieController) GetMovieByID(ctx *gin.Context) {
 
-	
 	idParam := ctx.Param("id")
 	id, err := strconv.Atoi(idParam)
 
@@ -74,12 +73,12 @@ func (c *MovieController) UpdateMovie(ctx *gin.Context) {
 
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid movie ID"})
+		ctx.JSON(400, gin.H{"error": "Invalid movie ID"})
 		return
 	}
 
 	if err := ctx.ShouldBindJSON(&movie); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON"})
+		ctx.JSON(400, gin.H{"error": "Invalid JSON"})
 		return
 	}
 
@@ -90,10 +89,11 @@ func (c *MovieController) UpdateMovie(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, movie)
 }
+
 func (c *MovieController) DeleteMovie(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid movie ID"})
+		ctx.JSON(400, gin.H{"error": "Invalid movie ID"})
 		return
 	}
 
