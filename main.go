@@ -3,6 +3,7 @@ package main
 import (
 	"go-gin-mysql/config"
 	"go-gin-mysql/controllers"
+	_ "go-gin-mysql/docs"
 	"go-gin-mysql/repositories"
 	"go-gin-mysql/routes"
 	"go-gin-mysql/services"
@@ -12,6 +13,13 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
+
+// @title Movies API
+// @version 1.0
+// @description Server for managing movies
+// @host localhost:8080
+// @BasePath /api/v1
+// @securityDefinitions.basic BasicAuth
 
 func main() {
 	err := godotenv.Load()

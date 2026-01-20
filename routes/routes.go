@@ -6,12 +6,21 @@ import (
 	"go-gin-mysql/middlewares"
 
 	"github.com/gin-gonic/gin"
+
+	swaggerFiles "github.com/swaggo/files"     // swagger embed files
+	ginSwagger "github.com/swaggo/gin-swagger" // gin-swagger middleware
 )
 
 func RegisterRoutes(
 	r *gin.Engine,
 	movieController *controllers.MovieController,
 ) {
+
+	
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(
+		swaggerFiles.Handler,
+	))
+
 	//for api versioning
 	v1 := r.Group("/api/v1")
 
@@ -20,7 +29,6 @@ func RegisterRoutes(
 	{
 		movies.GET("", movieController.GetMovies)
 		movies.GET("/:id", movieController.GetMovieByID)
-
 	}
 
 	//PRIVATE ROUTES (ADMIN ACCESS)
